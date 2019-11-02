@@ -1,0 +1,44 @@
+version: '3'
+services:
+  valet:
+    build:
+      context: .
+      args:
+        PHP_VERSION: $PHP_VERSION
+        DEV_USER: $DEV_USER
+    image: wde:${TAG}
+    container_name: wde
+    depends_on:
+      - db
+    networks:
+      dev_net:
+        ipv4_address: 172.18.18.200
+ 
+  db:
+    image: mariadb
+    container_name: db
+    restart: always
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    ports:
+      - '3306:3306'
+    volumes:
+      - db-store:/var/lib/mysql
+    networks:
+      dev_net:
+        ipv4_address: 172.18.18.100
+    tty: true
+    stdin_open: true
+ 
+volumes:
+  db-store:
+
+networks:
+  dev_net:
+    driver: bridge
+    driver_opts:
+      com.docker.network.enable_ipv6: "false"
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.18.18.0/24

@@ -1,18 +1,19 @@
-FROM debian:stable-slim
+FROM ubuntu:eoan
 
 # Constants
-ENV DEV_USER magnetron
+ARG PHP_VERSION=7.3
+ARG DEV_USER=magnetron
 ENV DEV_HOME /home/${DEV_USER}
-ENV DEV_DB_USER magnetron
-ENV DEV_DB_PASS magnetron
+
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Install basics
 RUN apt update && \
-    apt install -y --no-install-recommends --no-upgrade sudo zip unzip iputils-ping curl wget dnsmasq less make && \
-    apt install -y --no-install-recommends --no-upgrade vim git openssh-client openssh-server && \
+    apt install -yq --no-install-recommends --no-upgrade sudo zip unzip iputils-ping curl wget dnsmasq less make ca-certificates software-properties-common vim git openssh-client openssh-server && \
+    add-apt-repository ppa:ondrej/php && \
 # Install server parts
-    apt install -y --no-install-recommends --no-upgrade nginx php openssl npm jq xsel libnss3-tools mariadb-server && \
-    apt install -y --no-install-recommends --no-upgrade php-fpm php-curl php-gd php-intl php-imap php-mysql php-soap php-xmlrpc php-xsl php-pear php-xdebug && \
+    apt install -yq --no-install-recommends --no-upgrade nginx php$PHP_VERSION openssl npm jq xsel libnss3-tools
+RUN apt install -yq --no-install-recommends --no-upgrade php$PHP_VERSION-fpm php$PHP_VERSION-curl php$PHP_VERSION-gd php$PHP_VERSION-intl php$PHP_VERSION-imap php$PHP_VERSION-mysql php$PHP_VERSION-soap php$PHP_VERSION-xmlrpc php$PHP_VERSION-xsl php$PHP_VERSION-xml php$PHP_VERSION-xdebug php$PHP_VERSION-imagick imagemagick && \  
     apt install -y --no-install-recommends --no-upgrade composer
 
 # Create a user
@@ -28,7 +29,7 @@ RUN composer global require cpriego/valet-linux && \
     valet install && \
     mkdir $DEV_HOME/domains && \
     cd $DEV_HOME/domains && \
-    valet domain dev && \
+    valet domain DOMAIN_SUFFIX && \
     valet park
 VOLUME ["${DEV_HOME}/domains", "${DEV_HOME}/.valet"]
 
@@ -36,24 +37,14 @@ VOLUME ["${DEV_HOME}/domains", "${DEV_HOME}/.valet"]
 RUN sudo sed -i s/\#user=/user=root/g /etc/dnsmasq.conf && \
     sudo sh -c "echo \"nameserver 127.0.0.1\nnameserver 1.1.1.1\" >| /etc/resolv.conf"
 
-# Setup Database
-RUN sudo service mysql start && \
-    echo "CREATE USER '$DEV_DB_USER'@'localhost' IDENTIFIED BY '$DEV_DB_PASS'; \
-          GRANT ALL PRIVILEGES ON * . * TO '$DEV_DB_USER'@'localhost'; \
-          UPDATE mysql.user SET host = '%'" | sudo mysql -u root
-RUN sudo service mysql stop && \
-    sudo sed -e 's/^bind-address.*$/bind-address = 0.0.0.0/' -i /etc/mysql/mariadb.conf.d/50-server.cnf
-VOLUME ["/var/lib/mysql", "/var/log/mysql", "/etc/mysql"]
-
 # Startup services
-ENTRYPOINT sudo service nginx start && \
+CMD sudo service nginx start && \
     sudo service dnsmasq start && \
-    sudo service php7.3-fpm start && \
-    sudo service mysql start && \
-    valet start
+    sudo service php$PHP_VERSION-fpm start && \
+    valet start && \
+    tail -f /dev/null
 
 # Expose the ports
 EXPOSE 80/tcp
 EXPOSE 80/udp
-EXPOSE 3306/tcp
 EXPOSE 9000/tcp
