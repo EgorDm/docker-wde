@@ -1,4 +1,4 @@
-version: '3'
+version: '3.2'
 services:
   valet:
     build:
@@ -6,13 +6,17 @@ services:
       args:
         PHP_VERSION: $PHP_VERSION
         DEV_USER: $DEV_USER
+        DOMAIN_SUFFIX: $DOMAIN_SUFFIX
     image: wde:${TAG}
     container_name: wde
-    depends_on:
-      - db
+    volumes:
+      - type: bind
+        source: $DOMAIN_PATH
+        target: /home/$DEV_USER/domains
     networks:
       dev_net:
-        ipv4_address: 172.18.18.200
+         ipv4_address: 172.18.18.200
+    restart: always
  
   db:
     image: mariadb
@@ -29,6 +33,20 @@ services:
         ipv4_address: 172.18.18.100
     tty: true
     stdin_open: true
+
+  dns:
+    image: andyshinn/dnsmasq
+    container_name: dns
+    networks:
+      dev_net:
+        ipv4_address: 172.18.18.120
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+    cap_add:
+      - NET_ADMIN
+    command: -A /$DOMAIN_SUFFIX/172.18.18.200 --log-facility=-
+    restart: always
  
 volumes:
   db-store:
