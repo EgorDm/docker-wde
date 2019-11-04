@@ -13,6 +13,15 @@ services:
       - type: bind
         source: $DOMAIN_PATH
         target: /home/$DEV_USER/domains
+      - type: bind
+        source: ./storage/valet/certificates
+        target: /home/$DEV_USER/.valet/Certificates
+      - type: bind
+        source: ./storage/valet/log
+        target: /home/$DEV_USER/.valet/Log
+      - type: bind
+        source: ./storage/valet/nginx
+        target: /home/$DEV_USER/.valet/Nginx
     networks:
       dev_net:
          ipv4_address: 172.18.18.200
@@ -34,19 +43,19 @@ services:
     tty: true
     stdin_open: true
 
-  dns:
-    image: andyshinn/dnsmasq
-    container_name: dns
-    networks:
-      dev_net:
-        ipv4_address: 172.18.18.120
-    ports:
-      - "53:53/tcp"
-      - "53:53/udp"
-    cap_add:
-      - NET_ADMIN
-    command: -A /$DOMAIN_SUFFIX/172.18.18.200 --log-facility=-
-    restart: always
+#  dns:
+#    image: andyshinn/dnsmasq
+#    container_name: dns
+#    networks:
+#      dev_net:
+#        ipv4_address: 172.18.18.120
+#    ports:
+#      - "53:53/tcp"
+#      - "53:53/udp"
+#    cap_add:
+#      - NET_ADMIN
+#    command: -A /$DOMAIN_SUFFIX/172.18.18.200 --log-facility=-
+#    restart: always
  
 volumes:
   db-store:

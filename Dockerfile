@@ -4,57 +4,55 @@ FROM ubuntu:eoan
 ARG PHP_VERSION=7.3
 ENV PHP_VERSION=$PHP_VERSION
 
-ARG DEV_USER=magnetron
-ENV DEV_USER=$DEV_USER
-
-ENV DEV_HOME=/home/${DEV_USER}
-
-ARG DOMAIN_SUFFIX=dev
-ENV DOMAIN_SUFFIX=$DOMAIN_SUFFIX
-
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install basics
+ENV apti='apt install -yq --no-install-recommends --no-upgrade'
+ENV PHP_EXTENSIONS='fpm curl gd intl imap mysql soap xmlrpc xsl xml xdebug imagick mbstring'
+
 RUN apt update && \
-    apt install -yq --no-install-recommends --no-upgrade sudo zip unzip iputils-ping curl wget dnsmasq less make ca-certificates software-properties-common vim git openssh-client openssh-server && \
+    $apti sudo zip unzip curl dnsmasq ca-certificates software-properties-common vim git openssh-client && \
     add-apt-repository ppa:ondrej/php && \
-# Install server parts
-    apt install -yq --no-install-recommends --no-upgrade nginx php$PHP_VERSION mysql-client openssl npm jq xsel libnss3-tools
-RUN apt install -yq --no-install-recommends --no-upgrade php$PHP_VERSION-fpm php$PHP_VERSION-curl php$PHP_VERSION-gd php$PHP_VERSION-intl php$PHP_VERSION-imap php$PHP_VERSION-mysql php$PHP_VERSION-soap php$PHP_VERSION-xmlrpc php$PHP_VERSION-xsl php$PHP_VERSION-xml php$PHP_VERSION-xdebug php$PHP_VERSION-imagick imagemagick && \  
-    apt install -y --no-install-recommends --no-upgrade composer
+    $apti nginx php$PHP_VERSION mysql-client openssl npm jq xsel libnss3-tools imagemagick
+RUN $apti $(echo $PHP_EXTENSIONS | sed "s/[^ ]* */php${PHP_VERSION}-&/g") && \  
+    $apti composer
 
 # Create a user
+ARG DEV_USER=magnetron
+ENV DEV_HOME=/home/${DEV_USER}
+ENV DEV_TOOLS=${DEV_HOME}/tools
+
 RUN useradd -ms /bin/bash ${DEV_USER} && \
     usermod -aG sudo ${DEV_USER} && \
     echo "${DEV_USER} ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 USER ${DEV_USER}
 WORKDIR ${DEV_HOME}
 
+ADD container $DEV_TOOLS
+
 # Setup Valet
+ARG DOMAIN_SUFFIX=dev
+ENV DOMAIN_SUFFIX=$DOMAIN_SUFFIX
+ENV DOMAINS=$DEV_HOME/domains
+
 ENV PATH $DEV_HOME/.composer/vendor/bin:$PATH
 RUN composer global require cpriego/valet-linux && \
     valet install && \
-    mkdir $DEV_HOME/domains && \
-    cd $DEV_HOME/domains && \
+    mkdir $DOMAINS && \
+    cd $DOMAINS && \
     valet domain $DOMAIN_SUFFIX && \
     valet park
-VOLUME ["${DEV_HOME}/domains", "${DEV_HOME}/.valet"]
-
-# Setup networking
-#RUN sudo sed -i s/\#user=/user=root/g /etc/dnsmasq.conf 
-# && \
-#    sudo sed -i s/\#port=.*/port=53/g /etc/dnsmasq.conf && \
-#    sudo sed -i s/\#listen-address=.*/listen-address=0.0.0.0/g /etc/dnsmasq.conf && \
-#    sudo sh -c "echo \"nameserver 127.0.0.1\nnameserver 1.1.1.1\" >| /etc/resolv.conf"
+VOLUME ["${DEV_HOME}/domains", "${DEV_HOME}/.valet/Certificates", "${DEV_HOME}/.valet/Log", "${DEV_HOME}/.valet/Nginx"]
 
 # Expose the ports
 EXPOSE 80/tcp
 EXPOSE 80/udp
+EXPOSE 443/tcp
+EXPOSE 443/udp
 EXPOSE 9000/tcp
 
-# Start
-CMD sudo service nginx start && \
-#    sudo service dnsmasq start && \
+CMD bash $DEV_TOOLS/startup.sh && \
+    sudo service nginx start && \
     sudo service php$PHP_VERSION-fpm start && \
     valet start && \
     tail -f /dev/null

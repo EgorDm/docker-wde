@@ -24,3 +24,5 @@ vendor/pkg/
 pyenv
 Vagrantfile
 .env
+storage
+!storage/.gitkeep
