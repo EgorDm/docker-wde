@@ -43,6 +43,7 @@ RUN composer global require cpriego/valet-linux && \
     valet domain $DOMAIN_SUFFIX && \
     valet park
 VOLUME ["${DEV_HOME}/domains", "${DEV_HOME}/.valet/Certificates", "${DEV_HOME}/.valet/Log", "${DEV_HOME}/.valet/Nginx"]
+RUN sudo chown -R $DEV_USER:$DEV_USER ${DEV_HOME}/.valet
 
 # Expose the ports
 EXPOSE 80/tcp
