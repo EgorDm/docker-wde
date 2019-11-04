@@ -1,0 +1,16 @@
+#!/bin/sh
+
+PHP_CLI_INI=$(php -i | grep /.+/php.ini -oE)
+PHP_FPM_INI=$(echo "$PHP_CLI_INI" | sed  s/cli/fpm/)
+
+php_config() {
+  sudo sed -i s/^$1.*=.*/$1 = $2/ $PHP_CLI_INI
+  sudo sed -i s/^$1.*=.*/$1 = $2/ $PHP_FPM_INI
+}
+
+php_config max_execution_time 0
+php_config display_errors On
+php_config display_startup_errors On
+php_config track_errors On
+php_config upload_max_filesize 20M
+
