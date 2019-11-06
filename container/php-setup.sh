@@ -14,3 +14,4 @@ php_config display_startup_errors On
 php_config track_errors On
 php_config upload_max_filesize 20M
 
+sudo sed s/www-data/magnetron/ -i /etc/php/7.1/fpm/pool.d/www.conf

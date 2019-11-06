@@ -9,6 +9,8 @@ services:
         DOMAIN_SUFFIX: $DOMAIN_SUFFIX
     image: wde:${TAG}
     container_name: wde
+    depends_on:
+      - db
     volumes:
       - type: bind
         source: $DOMAIN_PATH
@@ -26,7 +28,7 @@ services:
       dev_net:
          ipv4_address: 172.18.18.200
     restart: always
- 
+
   db:
     image: mariadb
     container_name: db
@@ -42,6 +44,7 @@ services:
         ipv4_address: 172.18.18.100
     tty: true
     stdin_open: true
+
 
 #  dns:
 #    image: andyshinn/dnsmasq

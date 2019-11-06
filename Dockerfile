@@ -45,6 +45,8 @@ RUN composer global require cpriego/valet-linux && \
 VOLUME ["${DEV_HOME}/domains", "${DEV_HOME}/.valet/Certificates", "${DEV_HOME}/.valet/Log", "${DEV_HOME}/.valet/Nginx"]
 RUN sudo chown -R $DEV_USER:$DEV_USER ${DEV_HOME}/.valet
 
+RUN echo "source $DEV_TOOLS/dev_tools.sh" >> ${DEV_HOME}/.bashrc
+
 # Expose the ports
 EXPOSE 80/tcp
 EXPOSE 80/udp
@@ -53,6 +55,7 @@ EXPOSE 443/udp
 EXPOSE 9000/tcp
 
 CMD bash $DEV_TOOLS/startup.sh && \
+    bash $DEV_TOOLS/php-setup.sh && \
     sudo service nginx start && \
     sudo service php$PHP_VERSION-fpm start && \
     valet start && \
