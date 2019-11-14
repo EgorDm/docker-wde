@@ -13,9 +13,12 @@ ENV PHP_EXTENSIONS='fpm curl gd intl imap mysql soap xmlrpc xsl xml xdebug imagi
 RUN apt update && \
     $apti sudo zip unzip curl dnsmasq ca-certificates software-properties-common vim git openssh-client && \
     add-apt-repository ppa:ondrej/php && \
-    $apti nginx php$PHP_VERSION mysql-client openssl npm jq xsel libnss3-tools imagemagick
+    $apti nginx php$PHP_VERSION mysql-client openssl jq xsel libnss3-tools imagemagick npm nodejs libpng-dev
 RUN $apti $(echo $PHP_EXTENSIONS | sed "s/[^ ]* */php${PHP_VERSION}-&/g") && \  
     $apti composer
+
+RUN npm config set registry https://registry.npmjs.org/ && \
+    npm install npm@latest -g
 
 # Create a user
 ARG DEV_USER=magnetron
