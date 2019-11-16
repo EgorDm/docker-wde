@@ -1,5 +1,4 @@
-import os
-import subprocess
+import os, subprocess, re
 from typing import Optional, Union
 
 from web_dev_env_tools import constants, container
@@ -33,3 +32,17 @@ def command(cmd: Union[list, str], cwd=None, capture=True, shell=False) -> Optio
         return ''
     else:
         return None
+
+
+def update_ini(name: str, value: str):
+    with open(constants.get_root('.env')) as f:
+        lines = f.readlines()
+
+    pattern = re.compile(f'^({re.escape(name)})=.*')
+    for i in range(len(lines)):
+        if pattern.match(lines[i]):
+            lines[i] = f"{name}={value}\n"
+
+    with open(constants.get_root('.env'), 'w') as f:
+        f.writelines(lines)
+

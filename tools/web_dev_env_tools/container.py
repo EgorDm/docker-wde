@@ -43,7 +43,7 @@ def exec(name: str, cmd: Union[list, str], user: str = None, capture: bool = Tru
          require_mounted=False, use_mounted=True) -> Optional[str]:
     if type(cmd) is str: shell = True
 
-    final_cmd = ['docker', 'exec', '-e', 'TERM=xterm-256color']
+    final_cmd = ['docker', 'exec', '-it', '-e', 'TERM=xterm-256color']
     if user is not None:
         final_cmd += ['-u', user]
     rel = translate_path_mounted(os.getcwd())

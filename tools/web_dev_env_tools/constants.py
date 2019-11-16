@@ -23,8 +23,10 @@ PHP_VERSION = os.getenv('PHP_VERSION', '7.1')
 DOMAIN_SUFFIX = os.getenv('DOMAIN_SUFFIX', 'dev')
 DOMAIN_PATH = os.getenv('DOMAIN_PATH', '7.1')
 
-WDE_NAME = 'wde'
+WDE_NAME = f'wde-{PHP_VERSION}'
 DB_NAME = 'db'
+
+AVAILABLE_PHP_VERSIONS = ['5.6', '7.0', '7.1', '7.2', '7.3']
 
 
 def get_root(subdir=None) -> str:

@@ -7,8 +7,8 @@ services:
         PHP_VERSION: $PHP_VERSION
         DEV_USER: $DEV_USER
         DOMAIN_SUFFIX: $DOMAIN_SUFFIX
-    image: wde:${TAG}
-    container_name: wde
+    image: wde:${PHP_VERSION}
+    container_name: wde-${PHP_VERSION}
     depends_on:
       - db
     volumes:
@@ -26,13 +26,11 @@ services:
         target: /home/$DEV_USER/.valet/Nginx
     networks:
       dev_net:
-         ipv4_address: 172.18.18.200
-    restart: always
+        ipv4_address: 172.18.18.200
 
   db:
     image: mariadb
     container_name: db
-    restart: always
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: 1
     ports:
@@ -45,21 +43,6 @@ services:
     tty: true
     stdin_open: true
 
-
-#  dns:
-#    image: andyshinn/dnsmasq
-#    container_name: dns
-#    networks:
-#      dev_net:
-#        ipv4_address: 172.18.18.120
-#    ports:
-#      - "53:53/tcp"
-#      - "53:53/udp"
-#    cap_add:
-#      - NET_ADMIN
-#    command: -A /$DOMAIN_SUFFIX/172.18.18.200 --log-facility=-
-#    restart: always
- 
 volumes:
   db-store:
 

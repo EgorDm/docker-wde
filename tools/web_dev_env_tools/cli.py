@@ -44,13 +44,13 @@ def up(build):
     """Starts the wde environment"""
     cmd = ['docker-compose', 'up', '-d']
     if build: cmd.append('--build')
-    utils.command(cmd, constants.ROOT_FOLDER)
+    utils.command(cmd, constants.ROOT_FOLDER, capture=False)
 
 
 @core.command()
 def down():
     """Stops the wde environment"""
-    utils.command(['docker-compose', 'down'], constants.ROOT_FOLDER)
+    utils.command(['docker-compose', 'down'], constants.ROOT_FOLDER, capture=False)
 
 
 @core.command()
@@ -122,6 +122,22 @@ def secure(ctx, quiet, domain):
                   capture=quiet)
     utils.command(f'certutil -d $HOME/.mozilla/firefox/*.default -A -t TC -n "{domain}" -i "{cert_path}"', shell=True,
                   capture=quiet)
+
+
+@core.command()
+@click.pass_context
+@click.argument('version')
+def switchphp(ctx, version):
+    """Changes the containers php version"""
+    if version not in constants.AVAILABLE_PHP_VERSIONS:
+        click.echo(f'Invalid version. Available options: {",".join(constants.AVAILABLE_PHP_VERSIONS)}')
+        exit(1)
+    ctx.invoke(down)
+    utils.update_ini('PHP_VERSION', version)
+    click.secho(f'Updated php version to {version}. Restarting WDE', color='white')
+    constants.PHP_VERSION = version
+    os.putenv('PHP_VERSION', version)
+    utils.command(['docker-compose', 'up', '--build', '-d'], constants.ROOT_FOLDER, capture=False)
 
 
 @core.group(cls=AliasedGroup)
