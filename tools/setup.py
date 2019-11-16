@@ -1,15 +1,12 @@
 import setuptools
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
-
 setuptools.setup(
-    name="rendertron_cache_server",
+    name="web_dev_env_tools",
     version="0.1.0",
     author="Egor Dmitriev",
-    author_email="egor.dmitriev@experius.nl",
-    description="Rendertron Cache Server",
-    long_description=long_description,
+    author_email="egordmitriev2@gmail.com",
+    description="WebDevEnv Tools",
+    long_description='WebDevEnv Tools',
     long_description_content_type="text/markdown",
     url="",
     packages=setuptools.find_packages(),
@@ -17,5 +14,10 @@ setuptools.setup(
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.6'
+    python_requires='>=3.5',
+    entry_points={
+        'console_scripts': [
+            'wde = web_dev_env_tools.cli:cli'
+        ]
+    }
 )

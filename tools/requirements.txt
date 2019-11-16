@@ -1,5 +1,2 @@
-requests
-flask
+click
 python-dotenv
-portalocker
-uwsgi
