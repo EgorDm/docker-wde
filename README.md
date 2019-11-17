@@ -29,6 +29,3 @@ Commands:
   unsecure   Unecures given domain and removes self signed certificate from...
   up         Starts the wde environment
 ```
-
-# Todo
-* Automatic build

@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# Extract php version from tag
+PHP_VERSION="$(echo "${DOCKER_TAG}" | sed -En 's/^(php)([0-9\.]{3})/\2/p')"
+if [ -z "$PHP_VERSION" ]; then
+    PHP_VERSION="${PHP_VERSION_DEFAULT}"
+fi
+
+docker build --build-arg PHP_VERSION=$PHP_VERSION -f $DOCKERFILE_PATH -t $IMAGE_NAME .
