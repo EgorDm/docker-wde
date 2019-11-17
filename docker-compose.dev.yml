@@ -1,7 +1,13 @@
 version: '3.2'
 services:
   valet:
-    image: egordm/wde:php${PHP_VERSION}
+    build:
+      context: .
+      args:
+        PHP_VERSION: $PHP_VERSION
+        DEV_USER: $DEV_USER
+        DOMAIN_SUFFIX: $DOMAIN_SUFFIX
+    image: egordm/wde:${PHP_VERSION}
     container_name: wde-${PHP_VERSION}
     depends_on:
       - db
