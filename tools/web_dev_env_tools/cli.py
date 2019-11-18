@@ -1,4 +1,6 @@
 import os
+import subprocess
+
 import click
 
 from web_dev_env_tools import constants, container, utils
@@ -27,14 +29,15 @@ def core():
 @click.pass_context
 def install(ctx):
     """Starts the wde environment"""
-    if os.geteuid() != 0:
-        click.echo('You must run this command as root', err=True)
-        exit(1)
-
     click.secho('Installing WDE', color='white')
     ctx.invoke(up, build=True)
     ctx.invoke(down)
-    utils.command('bash scripts/install.sh', cwd=constants.get_root(), capture=False, shell=True)
+
+    install_script = constants.get_root('scripts/install.sh')
+    subprocess.run(
+        f'sudo -S bash {install_script}',
+        shell=True
+    )
     click.secho('Sucessfully installed WDE', color='green')
 
 

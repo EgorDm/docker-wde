@@ -17,7 +17,7 @@ RUN bash $DEV_TOOLS/install_node.sh
 # Install php
 ARG PHP_VERSION=7.3
 ENV PHP_VERSION=$PHP_VERSION
-ENV PHP_EXTENSIONS='fpm curl gd intl imap mysql soap xmlrpc xsl xml xdebug imagick mbstring'
+ENV PHP_EXTENSIONS='fpm curl gd intl imap mysql soap xmlrpc xsl xml xdebug imagick mbstring zip bcmath'
 RUN apt update && \
     add-apt-repository ppa:ondrej/php && \
     $apti nginx php$PHP_VERSION mysql-client openssl jq xsel libnss3-tools imagemagick
