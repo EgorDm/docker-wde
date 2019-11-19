@@ -2,13 +2,9 @@
 It is more targetted as web dev environment which allows you freely change your environment do work on projects with different php version and plugin requirements. It also provides a few tools to manage the projects between the host and container. It is meant to reduce the annoyance of configuring your dev environment and switching between different configurations. 
 
 # Installation
-* Clone the repo `git clone git@github.com:EgorDm/docker-wde.git`
-* Add environment variable ROOT_FOLDER linking to the cloned repo root
-  ```
-  cd docker-wde && export ROOT_FOLDER="$(pwd)"
-  ```
-* Install tools `cd docker-wde/tools && pip install .`
-* Run `wde install`
+* Install dependencies: docker, docker-compose, dnsmasq and python.
+* Install WDE tools: ``pip install wde``
+* Run wde toos setup: ``wde install``
 
 # Usage
 ```
