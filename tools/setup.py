@@ -1,7 +1,7 @@
 import setuptools
 
 setuptools.setup(
-    name="web_dev_env_tools",
+    name="wde",
     version="0.1.0",
     author="Egor Dmitriev",
     author_email="egordmitriev2@gmail.com",
@@ -17,7 +17,7 @@ setuptools.setup(
     python_requires='>=3.5',
     entry_points={
         'console_scripts': [
-            'wde = web_dev_env_tools.cli:cli'
+            'wde = wde.main:cli'
         ]
     }
 )

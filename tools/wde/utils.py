@@ -1,11 +1,13 @@
 import os, subprocess, re
 from typing import Optional, Union
 
-from web_dev_env_tools import constants, container
+import click
+
+from wde import container, config
 
 
 def get_rel_domain_path(path) -> Optional[str]:
-    return container.translate_path(constants.DOMAIN_PATH, container.get_path('domains'), path)
+    return container.translate_path(config.get().DOMAIN_PATH, container.get_path('domains'), path)
 
 
 def get_relative_path(root, path) -> Optional[str]:
@@ -17,6 +19,19 @@ def get_relative_path(root, path) -> Optional[str]:
         return None
     else:
         return rel
+
+
+def cmd_expect(cmd: Union[list, str], error_msg: str, cwd=None, hide_output=True) -> bool:
+    if isinstance(cmd, str):
+        res = command(cmd, capture=hide_output, shell=True, cwd=cwd)
+    else:
+        res = command(cmd, capture=hide_output, shell=False, cwd=cwd)
+
+    if res is None:
+        click.echo(error_msg, err=True)
+        exit(1)
+
+    return True
 
 
 def command(cmd: Union[list, str], cwd=None, capture=True, shell=False) -> Optional[str]:
@@ -35,7 +50,7 @@ def command(cmd: Union[list, str], cwd=None, capture=True, shell=False) -> Optio
 
 
 def update_ini(name: str, value: str):
-    with open(constants.get_root('.env')) as f:
+    with open(config.get().get_root('.env')) as f:
         lines = f.readlines()
 
     pattern = re.compile(f'^({re.escape(name)})=.*')
@@ -43,6 +58,5 @@ def update_ini(name: str, value: str):
         if pattern.match(lines[i]):
             lines[i] = f"{name}={value}\n"
 
-    with open(constants.get_root('.env'), 'w') as f:
+    with open(config.get().get_root('.env'), 'w') as f:
         f.writelines(lines)
-

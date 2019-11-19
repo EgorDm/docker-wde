@@ -4,11 +4,11 @@ from typing import Optional, Union
 
 import click
 
-from web_dev_env_tools import constants, utils
+from wde import config, utils
 
 
 def get_path(subdir=None) -> str:
-    ret = f'/home/{constants.DEV_USER}'
+    ret = f'/home/{config.get().DEV_USER}'
 
     if subdir is not None:
         ret = os.path.join(ret, subdir)
@@ -26,7 +26,7 @@ def translate_path(root, container_root, path) -> Optional[str]:
 
 
 def translate_path_mounted(path) -> Optional[str]:
-    rel = translate_path(constants.DOMAIN_PATH, get_path('domains'), path)
+    rel = translate_path(config.get().DOMAIN_PATH, get_path('domains'), path)
     if rel is not None: return rel
     return None
 
