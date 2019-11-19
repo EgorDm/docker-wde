@@ -40,13 +40,13 @@ def get_status(name: str) -> Optional[str]:
 
 
 def exec(name: str, cmd: Union[list, str], user: str = None, capture: bool = True, shell=False,
-         require_mounted=False, use_mounted=True) -> Optional[str]:
+         require_mounted=False, use_mounted=True, cwd=None) -> Optional[str]:
     if type(cmd) is str: shell = True
 
     final_cmd = ['docker', 'exec', '-it', '-e', 'TERM=xterm-256color']
     if user is not None:
         final_cmd += ['-u', user]
-    rel = translate_path_mounted(os.getcwd())
+    rel = translate_path_mounted(os.getcwd() if cwd is None else cwd)
     if rel is not None and use_mounted:
         final_cmd += ['-w', rel]
     elif require_mounted:

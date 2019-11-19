@@ -25,7 +25,7 @@ def secure(ctx, cfg: Config, quiet, domain):
     ctx.invoke(unsecure)
     domain = f'{domain}.{cfg.DOMAIN_SUFFIX}'
 
-    container.exec(cfg.WDE_NAME, ['valet', 'secure'], capture=quiet, require_mounted=True)
+    container.exec(cfg.WDE_NAME, ['valet', 'secure'], capture=quiet, require_mounted=True, cwd=cfg.get_domain(domain))
     cert_path = cfg.get_root(f'storage/valet/certificates/{domain}.crt')
     utils.command(f'certutil -d sql:$HOME/.pki/nssdb -A -t TC -n "{domain}" -i "{cert_path}"', shell=True,
                   capture=quiet)

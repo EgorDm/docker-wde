@@ -7,7 +7,7 @@ class AliasedGroup(click.Group):
         return super().invoke(ctx)
 
     def get_command(self, ctx: click.Context, cmd_name):
-        if cmd_name != 'install':
+        if cmd_name != 'install' and '--help' not in ctx.help_option_names:
             ctx.ensure_object(config.Config)
 
         rv = click.Group.get_command(self, ctx, cmd_name)

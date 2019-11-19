@@ -6,7 +6,7 @@ import os, subprocess
 @prelude.command()
 @click.pass_context
 def install(ctx):
-    """Starts the wde environment"""
+    """Installs the wde environment"""
     utils.cmd_expect(
         f'docker info',
         'Check if docker is installed, the service is running and you have permissions to run the docker command.'
@@ -38,7 +38,8 @@ def install(ctx):
 
     install_script = config.get().get_root('scripts/install.sh')
     subprocess.run(
-        f'sudo -S bash {install_script}',
-        shell=True
+        f'sudo -S bash {install_script} {config.get().WDE_ADDRESS}',
+        shell=True,
+        capture_output=False
     )
     click.secho('Sucessfully installed WDE', color='green')
