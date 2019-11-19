@@ -1,5 +1,5 @@
 import click
-from wde import constants, config
+from wde import config
 
 
 class AliasedGroup(click.Group):
