@@ -1,5 +1,6 @@
 import os, click
 from dotenv import load_dotenv
+from wde.utils import asserte
 
 EXECUTABLE = 'wde'
 ROOT_FOLDER = os.getenv('ROOT_FOLDER', os.path.expanduser('~/.wde'))
@@ -45,10 +46,7 @@ def get() -> Config:
 def load(cfg: Config, root=None) -> Config:
     if root is None: root = ROOT_FOLDER
 
-    if not os.path.exists(root):
-        click.echo(f'Root folder does not exitst. Run `{EXECUTABLE} install` first.', err=True)
-        exit(1)
-
+    asserte(os.path.exists(root), f'Root folder does not exitst. Run `{EXECUTABLE} install` first.')
     load_env(root)
 
     cfg.ROOT_FOLDER = root
@@ -70,9 +68,5 @@ def load(cfg: Config, root=None) -> Config:
 
 def load_env(root):
     env_path = os.path.join(root, '.env')
-
-    if not os.path.exists(env_path):
-        click.echo(f'Env file does not exist. Run `{EXECUTABLE} install` first.', err=True)
-        exit(1)
-
+    asserte(os.path.exists(env_path), f'Env file does not exist. Run `{EXECUTABLE} install` first.')
     load_dotenv(env_path)

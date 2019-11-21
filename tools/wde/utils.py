@@ -1,4 +1,5 @@
 import os, subprocess, re
+import pty
 from typing import Optional, Union
 
 import click
@@ -21,16 +22,19 @@ def get_relative_path(root, path) -> Optional[str]:
         return rel
 
 
+def asserte(expr: bool, error_msg: str):
+    if not expr:
+        click.echo(error_msg, err=True)
+        exit(1)
+
+
 def cmd_expect(cmd: Union[list, str], error_msg: str, cwd=None, hide_output=True) -> bool:
     if isinstance(cmd, str):
         res = command(cmd, capture=hide_output, shell=True, cwd=cwd)
     else:
         res = command(cmd, capture=hide_output, shell=False, cwd=cwd)
 
-    if res is None:
-        click.echo(error_msg, err=True)
-        exit(1)
-
+    asserte(res is not None, error_msg)
     return True
 
 
@@ -47,6 +51,14 @@ def command(cmd: Union[list, str], cwd=None, capture=True, shell=False) -> Optio
         return ''
     else:
         return None
+
+
+def command_it(cmd: Union[list, str], cwd=None) -> bool:
+    old_path = os.getcwd()
+    if cwd is not None: os.chdir(cwd)
+    code = pty.spawn(cmd)
+    os.chdir(old_path)
+    return code == 0
 
 
 def update_ini(name: str, value: str):

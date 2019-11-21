@@ -60,23 +60,41 @@ def info(cfg: Config):
 def exec(cfg: Config, c, user, cmd):
     """Executes given command in the container"""
     if c is not None:
-        container.exec(cfg.WDE_NAME, c, user=user, capture=False, shell=True)
+        container.build_cmd(cfg.WDE_NAME, c, user=user, shell=True).exec_it()
     elif len(cmd) > 0:
-        container.exec(cfg.WDE_NAME, list(cmd), user=user, capture=False)
+        container.build_cmd(cfg.WDE_NAME, list(cmd), user=user).exec_it()
 
 
 @prelude.command()
 @click.pass_context
 @pass_config
 @click.argument('version')
-def switchphp(ctx, cfg: Config, version):
+def switchphp(cfg: Config, ctx, version):
     """Changes the containers php version"""
-    if version not in constants.AVAILABLE_PHP_VERSIONS:
-        click.echo(f'Invalid version. Available options: {",".join(constants.AVAILABLE_PHP_VERSIONS)}')
-        exit(1)
+    utils.asserte(version in constants.AVAILABLE_PHP_VERSIONS,
+                  f'Invalid version. Available options: {",".join(constants.AVAILABLE_PHP_VERSIONS)}')
+
     ctx.invoke(down)
     utils.update_ini('PHP_VERSION', version)
     click.secho(f'Updated php version to {version}. Restarting WDE', color='white')
     config.get().PHP_VERSION = version
     os.putenv('PHP_VERSION', version)
     utils.command(['docker-compose', 'up', '--build', '-d'], cfg.ROOT_FOLDER, capture=False)
+
+
+@prelude.command()
+@click.pass_context
+@pass_config
+@click.argument('enable', default=1)
+def xdbgtoggle(cfg: Config, ctx, enable):
+    """Enables/disables xdebug extension"""
+    ini_file = '/etc/php/7.1/mods-available/xdebug.ini'
+    if not enable:
+        cmd = ['sed', 's/zend_extension=xdebug\.so/\#zend_extension=xdebug\.so/g', '-i', ini_file]
+        click.echo('Disabling XDebug')
+    else:
+        cmd = ['sed', 's/\#zend_extension=xdebug\.so/zend_extension=xdebug\.so/g', '-i', ini_file]
+        click.echo('Enabling XDebug')
+
+    container.build_cmd(cfg.WDE_NAME, cmd, user='root').exec(False)
+    container.build_cmd(cfg.WDE_NAME, ['valet', 'restart'], user='magnetron').exec(False)
