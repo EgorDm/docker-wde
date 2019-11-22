@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="wde",
-    version="0.1.1",
+    version="0.2.0",
     author="Egor Dmitriev",
     author_email="egordmitriev2@gmail.com",
     description="WebDevEnv Tools",
